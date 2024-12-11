@@ -1,0 +1,54 @@
+name: Update .nvmrc to latest LTS
+
+on:
+  schedule:
+    - cron: '0 7 * * 1' # runs every Monday at 3:00 PM in Singapore
+
+  workflow_dispatch:
+
+jobs:
+  update-nvmrc:
+    name: Update .nvmrc
+    timeout-minutes: 5
+    runs-on: [self-hosted, linux, x64, default]
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Fetch latest Node.js LTS version
+        run: |
+          LATEST_LTS=$(curl -s https://nodejs.org/dist/index.json | jq -r '[.[] | select(.lts != false)][0].version')
+          echo "LATEST_LTS=${LATEST_LTS}" >> $GITHUB_ENV
+
+      - name: Update .nvmrc
+        run: echo "${{ env.LATEST_LTS }}" > .nvmrc
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH_NAME="update-nvmrc-${{ env.LATEST_LTS }}"
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+          git checkout -b $BRANCH_NAME
+          if ! git diff --exit-code .nvmrc; then
+            git add .nvmrc
+            git commit -m "build(node): update .nvmrc to Node.js ${{ env.LATEST_LTS }}"
+            git push --set-upstream https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $BRANCH_NAME
+          else
+            echo "No changes detected in .nvmrc. Skipping commit and push."
+          fi
+          
+      - name: Create Pull Request
+        run: |
+           gh pr create \
+            -B main \
+            -H ${{ env.BRANCH_NAME }} \
+            --title "build(node): update .nvmrc to Node.js ${{ env.LATEST_LTS }}" \
+            --body "This PR updates the .nvmrc file to the latest Node.js LTS version: **${{ env.LATEST_LTS }}**." \
+            --label "dependencies"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
