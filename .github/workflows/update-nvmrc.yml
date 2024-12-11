@@ -51,4 +51,4 @@ jobs:
               --body "This PR updates the .nvmrc file to the latest Node.js LTS version: **${{ env.LATEST_LTS }}**." \
               --label "dependencies"
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
