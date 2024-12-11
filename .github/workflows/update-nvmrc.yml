@@ -10,7 +10,7 @@ jobs:
   update-nvmrc:
     name: Update .nvmrc
     timeout-minutes: 5
-    runs-on: [self-hosted, linux, x64, default]
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
