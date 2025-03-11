@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { GetExampleInput } from './dto'
+import { GetExampleInput } from './input'
 
 @Injectable()
 export class ExampleService {
-    getExample(dto: GetExampleInput) {
-        const { exampleName } = dto
+    getExample(input: GetExampleInput) {
+        const { exampleName } = input
 
         return exampleName
     }

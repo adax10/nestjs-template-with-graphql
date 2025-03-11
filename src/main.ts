@@ -17,8 +17,8 @@ const bootstrap = async () => {
             noSniff: true,
             hidePoweredBy: true,
             contentSecurityPolicy: false,
-            crossOriginEmbedderPolicy: false
-        })
+            crossOriginEmbedderPolicy: false,
+        }),
     )
 
     app.enableCors(corsConfig)

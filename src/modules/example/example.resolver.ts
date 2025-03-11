@@ -1,13 +1,13 @@
 import { Args, Query, Resolver } from '@nestjs/graphql'
 import { ExampleService } from './example.service'
-import { GetExampleInput } from './dto'
+import { GetExampleInput } from './input'
 
 @Resolver()
 export class ExampleResolver {
     constructor(private exampleService: ExampleService) {}
 
     @Query(() => String)
-    getExample(@Args(GetExampleInput.name) dto: GetExampleInput) {
-        return this.exampleService.getExample(dto)
+    getExample(@Args(GetExampleInput.name) input: GetExampleInput) {
+        return this.exampleService.getExample(input)
     }
 }

@@ -6,12 +6,12 @@ import { healthCheckConfig } from './health-check.config'
 
 export const getConfig = () => {
     const configEnvs = plainToInstance(EnvironmentVariables, process.env, {
-        enableImplicitConversion: true
+        enableImplicitConversion: true,
     })
 
     return {
         basicConfig: basicConfig(configEnvs),
         healthCheckConfig: healthCheckConfig(configEnvs),
-        graphQLConfig: graphQLConfig(configEnvs)
+        graphQLConfig: graphQLConfig(configEnvs),
     }
 }
