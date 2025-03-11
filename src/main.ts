@@ -1,14 +1,15 @@
 import { ShutdownSignal, ValidationPipe } from '@nestjs/common'
-import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
+import { NestFactory } from '@nestjs/core'
 import helmet from 'helmet'
 import { json } from 'body-parser'
+import { splitCorsOrigin, getConfig } from 'lib/config'
 import { AppModule } from 'modules/app'
-import { getConfig } from 'lib/config'
 
 const bootstrap = async () => {
     const { expressConfig, bodyParserConfig, corsConfig } = getConfig().basicConfig
     const { port, host } = expressConfig
+    const { origin, methods, credentials } = corsConfig
 
     const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
@@ -20,8 +21,11 @@ const bootstrap = async () => {
             crossOriginEmbedderPolicy: false,
         }),
     )
-
-    app.enableCors(corsConfig)
+    app.enableCors({
+        origin: splitCorsOrigin(origin),
+        methods,
+        credentials,
+    })
     app.use(json(bodyParserConfig))
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
     app.enableShutdownHooks([ShutdownSignal.SIGINT, ShutdownSignal.SIGTERM])
