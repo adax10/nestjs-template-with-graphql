@@ -20,35 +20,44 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Fetch latest Node.js LTS version
+        id: node-version
         run: |
           LATEST_LTS=$(curl -s https://nodejs.org/dist/index.json | jq -r '[.[] | select(.lts != false)][0].version')
-          echo "LATEST_LTS=${LATEST_LTS}" >> $GITHUB_ENV
+          echo "latest_lts=${LATEST_LTS}" >> $GITHUB_OUTPUT
 
       - name: Update .nvmrc
-        run: echo "${{ env.LATEST_LTS }}" > .nvmrc
+        run: echo "${{ steps.node-version.outputs.latest_lts }}" > .nvmrc
+
+      - name: Prepare branch name
+        id: branch-name
+        run: |
+          BRANCH_NAME="update-nvmrc-${{ steps.node-version.outputs.latest_lts }}"
+          echo "branch_name=${BRANCH_NAME}" >>$GITHUB_OUTPUT
 
       - name: Commit and push changes
+        id: commit-changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          BRANCH_NAME="update-nvmrc-${{ env.LATEST_LTS }}"
-          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
-          git checkout -b $BRANCH_NAME
+          git checkout -b ${{ steps.branch-name.outputs.branch_name }}
           if ! git diff --exit-code .nvmrc; then
+            echo "nvmrc_changed=true" >> $GITHUB_OUTPUT
             git add .nvmrc
-            git commit -m "build(node): update .nvmrc to Node.js ${{ env.LATEST_LTS }}"
+            git commit -m "build(node): update .nvmrc to Node.js ${{ steps.node-version.outputs.latest_lts }}"
             git push --set-upstream https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $BRANCH_NAME
           else
+            echo "nvmrc_changed=false" >> $GITHUB_OUTPUT
             echo "No changes detected in .nvmrc. Skipping commit and push."
           fi
 
       - name: Create Pull Request
+        if: steps.commit-changes.outputs.nvmrc_changed == 'true'
         run: |
           gh pr create \
             -B main \
-            -H ${{ env.BRANCH_NAME }} \
-            --title "build(node): update .nvmrc to Node.js ${{ env.LATEST_LTS }}" \
-            --body "This PR updates the .nvmrc file to the latest Node.js LTS version: **${{ env.LATEST_LTS }}**." \
+            -H ${{ steps.branch-name.outputs.branch_name }} \
+            --title "build(node): update .nvmrc to Node.js ${{ steps.node-version.outputs.latest_lts  }}" \
+            --body "This PR updates the .nvmrc file to the latest Node.js LTS version: **${{ steps.node-version.outputs.LATEST_LTS  }}**." \
             --label "dependencies"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
