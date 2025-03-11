@@ -302,4 +302,17 @@ export default [
             '@stylistic/ts/semi': ['error', 'never'],
         },
     },
+    {
+        files: ['test-k6/**/*.ts'],
+        languageOptions: {
+            parserOptions: {
+                project: './test-k6/tsconfig.json',
+            },
+        },
+        rules: {
+            '@typescript-eslint/strict-boolean-expressions': 'off',
+            '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'off',
+            '@typescript-eslint/no-unnecessary-condition': 'off',
+        },
+    },
 ]
