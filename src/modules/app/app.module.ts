@@ -4,10 +4,7 @@ import { ThrottlerModule, seconds } from '@nestjs/throttler'
 import { ConfigModule } from '@nestjs/config'
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo'
 import { GraphQLModule } from '@nestjs/graphql'
-import {
-    ApolloServerPluginLandingPageLocalDefault,
-    ApolloServerPluginLandingPageProductionDefault
-} from '@apollo/server/plugin/landingPage/default'
+import { ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginLandingPageProductionDefault } from '@apollo/server/plugin/landingPage/default'
 import { join } from 'node:path'
 import { GqlThrottlerGuard } from 'lib/guards'
 import { getConfig, envValidation } from 'lib/config'
@@ -22,16 +19,16 @@ import { ExampleModule } from 'modules/example'
             validate: envValidation,
             validationOptions: {
                 allowUnknown: true,
-                abortEarly: true
-            }
+                abortEarly: true,
+            },
         }),
         ThrottlerModule.forRoot({
             throttlers: [
                 {
                     ttl: seconds(getConfig().basicConfig.throttlerConfig.ttlS),
-                    limit: getConfig().basicConfig.throttlerConfig.limit
-                }
-            ]
+                    limit: getConfig().basicConfig.throttlerConfig.limit,
+                },
+            ],
         }),
         GraphQLModule.forRootAsync<ApolloDriverConfig>({
             driver: ApolloDriver,
@@ -45,19 +42,19 @@ import { ExampleModule } from 'modules/example'
                 plugins: [
                     getConfig().graphQLConfig.usePlayground
                         ? ApolloServerPluginLandingPageLocalDefault({ footer: false })
-                        : ApolloServerPluginLandingPageProductionDefault({ footer: false })
-                ]
-            })
+                        : ApolloServerPluginLandingPageProductionDefault({ footer: false }),
+                ],
+            }),
         }),
         HealthCheckModule,
-        ExampleModule
+        ExampleModule,
     ],
     providers: [
         AppService,
         {
             provide: APP_GUARD,
-            useClass: GqlThrottlerGuard
-        }
-    ]
+            useClass: GqlThrottlerGuard,
+        },
+    ],
 })
 export class AppModule {}

@@ -14,9 +14,10 @@ export class HealthCheckController {
     private readonly date: string
 
     constructor(private health: HealthCheckService) {
-        const timestamp = this.build !== 'unknown' ? parseInt(R.last(this.build.split('-')) || '', 10) * 1000 : null
+        const lastPart = R.last(this.build.split('-'))
+        const timestamp = this.build !== 'unknown' && !R.isNil(lastPart) ? parseInt(lastPart, 10) * 1000 : null
 
-        this.date = timestamp ? format(new Date(timestamp), 'yyyy-MM-dd HH:mm:ss') : 'unknown'
+        this.date = R.isNil(timestamp) || isNaN(timestamp) ? 'unknown' : format(new Date(timestamp), 'yyyy-MM-dd HH:mm:ss')
     }
 
     @Get()
@@ -28,9 +29,9 @@ export class HealthCheckController {
                 app: {
                     status: 'up',
                     build: this.build,
-                    date: this.date
-                }
-            })
+                    date: this.date,
+                },
+            }),
         ])
     }
 }

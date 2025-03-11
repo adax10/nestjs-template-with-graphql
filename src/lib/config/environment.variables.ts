@@ -11,7 +11,7 @@ export class EnvironmentVariables {
 
     @IsOptional()
     @IsString()
-    readonly API_HOST: string = 'localhost'
+    readonly API_HOST: string = '0.0.0.0'
 
     @IsOptional()
     @IsString()

@@ -1,6 +1,6 @@
-ARG NODE_VERSION
+ARG NODE_VERSION=22.14.0
 
-FROM node:${NODE_VERSION}-alpine as build
+FROM node:${NODE_VERSION}-alpine AS build
 
 WORKDIR /usr/src/app
 COPY --chown=node:node package.json yarn.lock ./
@@ -21,9 +21,8 @@ ARG NODE_ENV=production
 ARG SERVICE_NAME
 ARG SERVICE_VERSION
 
-ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
-ARG SERVICE_VERSION
+ENV SERVICE_NAME=$SERVICE_NAME
 ENV SERVICE_VERSION=$SERVICE_VERSION
 
 WORKDIR /usr/src/app
