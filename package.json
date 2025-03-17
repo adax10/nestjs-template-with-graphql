@@ -79,7 +79,7 @@
     "tsconfig-paths": "4.2.0",
     "typescript": "5.8.2",
     "typescript-eslint": "8.26.1",
-    "wait-on": "8.0.2"
+    "wait-on": "8.0.3"
   },
   "jest": {
     "moduleFileExtensions": [
